@@ -39,26 +39,16 @@ io.on('connection', (socket) => {
     logger.info('socket client connected');
     // XXX: will only respond to the last socket
     app.locals.shared.socket = socket;
+
+    socket.on('token info', (token) => {
+        logger.info('token get', token);
+        app.locals.shared.token = token;
+    });
 });
 
 server.listen(PORT, (err) => {
     if (err) throw err;
     logger.info(`Server listening on port ${PORT}.`);
 
-    logger.info('Logging in to get the token...');
-    request.post(config.API_URL_BASE + '/authentication', {
-        form: {
-            account: config.API_USERNAME,
-            password: config.API_PASSWORD
-        }
-    }, (err, resp, body) => {
-        if (err) throw err;
-        if (resp.statusCode >= 400) {
-            logger.error('Auth failed; unable to get token', body);
-            return;
-        }
-
-        logger.info('Get token', body);
-        app.locals.shared.token = body;
-    });
+    // logger.info('Logging in to get the token...')
 });

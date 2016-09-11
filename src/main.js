@@ -23,7 +23,39 @@ var app = new Vue({
     self.socket.on('connect', function() {
         self.state = 'ok';
         Par.init(200);
+
+        if (!localStorage.getItem('token')) {
+            var API_USERNAME = prompt('username');
+            var API_PASSWORD = prompt('password');
+
+            request.post('https://api.ntuosc.org/authentication', {
+                form: {
+                    account: API_USERNAME,
+                    password: API_PASSWORD
+                }
+            }, function(err, resp, body) {
+                if (err) throw err;
+                if (resp.statusCode >= 400) {
+                    console.error('Auth failed; unable to get token', body);
+                    authInfo = 'Account login failed';
+                    return;
+                }
+
+                console.log('Get token', body);
+                localStorage.setItem('token', body);
+                sendTokenBack(body);
+            });
+        } else {
+            console.log('use saved token', localStorage.getItem('token'));
+            sendTokenBack(localStorage.getItem('token'));
+        }
+
     });
+
+    function sendTokenBack(token) {
+        self.socket.emit('token info', token);
+    }
+
     self.socket.on('disconnect', function() {
         reset();
         self.disconnected = true;
@@ -119,4 +151,4 @@ function doCheck(authData, cbs) {
             cbs.authSuccess(rtn);
         });
     });
-} 
+}
