@@ -41,11 +41,6 @@ button[disabled] {
   border: #CCC 0.25em solid !important;
 }
 
-button:hover, button:active {
-  background: #FFF !important;
-  color: #333;
-}
-
 section {
   padding: 1em;
 }
